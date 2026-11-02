@@ -1,0 +1,241 @@
+import unicodedata
+
+texte = """
+Que les miens prennent ce rap pour un constat Que le pays prenne ce rap pour un contrat Une page ou deux dans les médias c'est tout ce qu'ils nous consacrent Pour être entendu il faut forcément aller au contact Nos ZUP nécessitent l'emploi de la force Mais pour moi en France la seule zone de non-droit c'est la Corse Allez leur dire, pour nous la justice reste un mystère Que Yvan Colonna naturellement n'est qu'un bouc émissaire Pas de perspective d'avenir donc les miens souffrent Nos vivres s'amenuisent donc les miens souffrent Pas de pleurs mais trop de douleurs pour effacer J'écris ce texte à chaud pourtant le cœur lui est glacé Comprenez-tu donc mon désarroi? Nos villes s'en font une montagne mais eux Ils grimpent et nous on cane contre ses parois Achevés par des bavures policières et je pense Que pour s'en sortir ils plaideront la légitime défense Dédicacé aux miens, aux miens Ceux qui savent ce que c'est que d'être exclus au quotidien Tous ceux qui se sentent mal, qui font le mal pour le bien Qui ont toujours manqué de tout mais qui ne demandent jamais rien Dédicacé aux miens, aux miens Ceux qui savent ce que c'est que d'être exclus au quotidien À ceux qui se sentent mal, qui font le mal pour le bien Qui ont toujours manqué de tout mais qui ne demandent jamais rien Entre allocation et convocation Voyou par dépit et non par vocation C'est invivable, on a vu nos parents aller se Tuer à la tâche pour même pas cinq mille balles Plus j'avance dans ce système Plus je comprends pourquoi aucun des Nôtres ne se retrouve dans ce système Ce sont eux qui font les règles donc ils savent comment tricher Les rebelles sont muselés, la liberté est ficelée Malgré les réveils musclés de Nico et ses cerbères Ça traficote toujours sous les réverbères Chaque jour un petit peu plus cet état me déçoit J'ai trop d'amis à l'ombre pour croire à une lueur d'espoir Où que l'on soit, quoi que l'on fasse on est de trop Mal à m'adresser aux gens, j'ai le sentiment de déranger de trop Leur en demander, l'euro nous fait défaut Mais on a trop d'honneur pour aller le mendier donc c'est Dédicacé aux miens, aux miens Ceux qui savent ce que c'est que d'être exclus au quotidien Tous ceux qui se sentent mal, qui font le mal pour le bien Qui ont toujours manqué de tout mais qui ne demandent jamais rien Dédicacé aux miens, aux miens Ceux qui savent ce que c'est que d'être exclus au quotidien À ceux qui se sentent mal, qui font le mal pour le bien Qui ont toujours manqué de tout mais qui ne demandent jamais rien Constamment diabolisés, nos esprits se fissurent Une mixture, on passe la nuit à cogiter Victimes de nos idées, on voit rarement une nocité Pour quelque chose de positif au JT Monsieur Pernaut fait découvrir la France profonde Incapable de soupçonner que la misère est juste là, là sous son nez J'déprime à mort du haut de ma tour À la prison ou à la morgue les meilleurs s'en vont tour à tour L'enfer nous guette, que Dieu nous en protège Qu'il nous éloigne de nos armes et qu'il ait pitié de nos âmes En bref qu'il enraye ce syndrome Que l'État arrête de croire que tout ceci ce n'est qu'un drôle Qu'ils viennent, qu'ils viennent là où les armes se brandissent Qu'ils viennent donc là où les délinquants grandissent Qu'ils viennent, qu'ils quittent leur place, se retrouvent à la nôtre Qu'ils se retrouvent à vivre là où les nôtres ont fait leur classe Où on fonce droit dans la misère, où la misère est un droit Où les hommes deviennent des proies pour les hommes de loi La loi, enfin ce qu'il en reste Elle est modifiée selon le budget des prévenus mes amis Les juges ne font plus acte de clémence Les avocats sont chers car la liberté est payante mes amis Qu'on nous éloigne des ténèbres Qu'on nous ouvre enfin les yeux parce que cette vie n'est qu'éphémère Dédicacé aux miens, aux miens Ceux qui savent ce que c'est que d'être exclus au quotidien Tous ceux qui se sentent mal, qui font le mal pour le bien Qui ont toujours manqué de tout mais qui ne demandent jamais rien Dédicacé aux miens, aux miens Ceux qui savent ce que c'est que d'être exclus au quotidien À ceux qui se sentent mal, qui font le mal pour le bien Qui ont toujours manqué de tout mais qui ne demandent jamais rien1
+"""
+
+
+def pgcd(a, b):
+    while b != 0:
+        a, b = b, a % b
+    return a
+
+
+def cle_valide(a):
+    return pgcd(a, 26) == 1
+
+
+
+def sans_accents(message):
+    message = unicodedata.normalize("NFD", message.upper())
+    resultat = ""
+    for caractere in message:
+        if unicodedata.category(caractere) != "Mn":
+            resultat += caractere
+    return resultat
+
+
+
+def chiffrer(message, a, b):
+    message = sans_accents(message)
+    resultat = ""
+    for lettre in message:
+        if lettre in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+            x = ord(lettre) - ord('A')
+            y = (a * x + b) % 26
+            resultat += chr(y + ord('A'))
+        else:
+            resultat += lettre
+    return resultat
+
+
+
+def dechiffrer(message, a, b):
+    if not cle_valide(a):
+        return "Erreur : clé invalide."
+    message = sans_accents(message)
+    resultat = ""
+    inverse = pow(a, -1, 26)
+    for lettre in message:
+        if lettre in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+            y = ord(lettre) - ord('A')
+            x = (inverse * (y - b)) % 26
+            resultat += chr(x + ord('A'))
+        else:
+            resultat += lettre
+    return resultat
+
+
+
+def afficher_cles():
+    print("\n========== CLES VALIDES ==========")
+    nombre = 0
+    for a in range(26):
+        if cle_valide(a):
+            for b in range(26):
+                print("a =", a, "| b =", b)
+                nombre += 1
+    print("\nNombre total de clés valides :", nombre)
+
+
+
+def occurrence(texte):
+    texte = sans_accents(texte)
+    dictionnaire = {}
+    for lettre in texte:
+        if lettre in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+            if lettre in dictionnaire:
+                dictionnaire[lettre] += 1
+            else:
+                dictionnaire[lettre] = 1
+    total = sum(dictionnaire.values())
+    probabilites = {}
+    if total == 0:
+        return probabilites
+    for lettre in dictionnaire:
+        probabilites[lettre] = dictionnaire[lettre] / total * 100
+    return probabilites
+
+
+def afficher_frequences(texte):
+
+    probabilites = occurrence(texte)
+
+    print("\n========== FREQUENCES DES LETTRES ==========")
+
+    if not probabilites:
+        print("Aucune lettre à analyser.")
+        return
+
+    for lettre, probabilite in sorted(
+        probabilites.items(),
+        key=lambda element: element[1],
+        reverse=True
+    ):
+        print(lettre, ":", round(probabilite, 2), "%")
+
+
+
+def score_frequences(message, reference):
+    """Compare les fréquences du message avec celles de la référence."""
+
+    frequences_reference = occurrence(reference)
+
+    frequences_message = occurrence(message)
+
+    if not frequences_reference:
+        return float("inf")
+
+    score = 0
+
+    for lettre in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+
+        frequence_ref = frequences_reference.get(lettre, 0)
+
+        frequence_msg = frequences_message.get(lettre, 0)
+
+        score += (frequence_ref - frequence_msg) ** 2
+
+    return score
+
+
+
+def force_brute(message, reference):
+    """Teste toutes les clés et classe les résultats."""
+
+    resultats = []
+
+    print("\nAnalyse en cours...")
+
+    for a in range(26):
+
+        if cle_valide(a):
+
+            for b in range(26):
+
+                resultat = dechiffrer(message, a, b)
+
+                score = score_frequences(resultat, reference)
+
+                resultats.append((score, a, b, resultat))
+
+    # Classement du meilleur score au moins bon
+    resultats.sort(key=lambda element: element[0])
+
+    print("\n========== RESULTATS LES PLUS PROBABLES ==========")
+
+    # Affichage des 10 meilleurs résultats
+    for score, a, b, resultat in resultats[:10]:
+
+        print("\n--------------------------------")
+
+        print("Score :", round(score, 2))
+
+        print("Clé a :", a)
+
+        print("Clé b :", b)
+
+        print("Message :", resultat)
+
+
+# ==========================================
+# 10. MENU PRINCIPAL
+# ==========================================
+
+def menu():
+
+    while True:
+
+        print("\n========== PROJET CRYPTAGE JULIAN LATtier ==========")
+
+        print("1. Chiffrer un message")
+
+        print("2. Déchiffrer un message")
+
+        print("3. Afficher toutes les clés valides")
+
+        print("4. Analyser les fréquences d'un message")
+
+        print("5. Tester toutes les clés (force brute)")
+
+        print("6. Quitter")
+
+        choix = input("\nVotre choix : ")
+
+        
+
+        if choix == "1":
+
+            message = input("Message : ")
+            a = int(input("Clé a : "))
+            b = int(input("Clé b : "))
+            if not cle_valide(a):
+                print("Erreur : la clé a doit être première avec 26.")
+                print("Valeurs possibles : 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25")
+
+            else:
+                print("\nMessage chiffré :", chiffrer(message, a, b))
+
+        elif choix == "2":
+            message = input("Message chiffré : ")
+            a = int(input("Clé a : "))
+            b = int(input("Clé b : "))
+            print("\nMessage déchiffré :", dechiffrer(message, a, b))
+
+
+
+        elif choix == "3":
+            afficher_cles()
+
+        
+
+        elif choix == "4":
+            message = input("Message à analyser : ")
+            afficher_frequences(message)
+
+
+
+        elif choix == "5":
+            message = input("Message chiffré à analyser : ")
+            force_brute(message, texte)
+
+
+
+        elif choix == "6":
+            print("\nFermeture de CryptoLab.")
+            break
+        else:
+            print("\nChoix invalide. Veuillez réessayer.")
+
+
+menu()
